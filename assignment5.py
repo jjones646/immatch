@@ -89,16 +89,21 @@ def findMatchesBetweenImages(image_1, image_2):
   # image_2_desc - type: numpy.ndarray of numpy.uint8 values.
   image_2_desc = None
 
-  # WRITE YOUR CODE HERE.
-
-
-
-
-
-  # We coded the return statement for you. You are free to modify it -- just
-  # make sure the tests pass.
+  # create SIFT object for feature detection
+  sift = SIFT()
+  # compute the keypoints
+  image_1_kp = sift.detect(image_1, None)
+  image_2_kp = sift.detect(image_2, None)
+  # compute the descriptors
+  image_1_kp, image_1_desc = sift.compute(image_1, image_1_kp)
+  image_2_kp, image_2_desc = sift.compute(image_2, image_2_kp)
+  # create Brute Force Matcher object for computing hamming distances
+  matcher = cv2.BFMatcher(cv2.NORM_HAMMING, True)
+  # compute the matches
+  matches_all = matcher.match(image_1_desc, image_2_desc)
+  # sort by descending distance, only keeping the top 10
+  matches = sorted(matches_all, key=lambda m: m.distance, reverse=True)[:10]
   return image_1_kp, image_2_kp, matches
-  # END OF FUNCTION.
 
 
 def drawMatches(image_1, image_1_keypoints, image_2, image_2_keypoints, matches):

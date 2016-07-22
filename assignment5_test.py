@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 import sys
 import os
 import numpy as np
@@ -66,7 +68,7 @@ if __name__ == "__main__":
 
   print 'Unit test passed.'
 
-  
+
   sourcefolder = os.path.abspath(os.path.join(os.curdir, 'images', 'source'))
   outfolder = os.path.abspath(os.path.join(os.curdir, 'images', 'output'))
 
@@ -76,7 +78,7 @@ if __name__ == "__main__":
   print 'Searching for folders with images in {}.'.format(sourcefolder)
 
   # Extensions recognized by opencv
-  exts = ['.bmp', '.pbm', '.pgm', '.ppm', '.sr', '.ras', '.jpeg', '.jpg', 
+  exts = ['.bmp', '.pbm', '.pgm', '.ppm', '.sr', '.ras', '.jpeg', '.jpg',
     '.jpe', '.jp2', '.tiff', '.tif', '.png']
 
   # For every image in the source directory

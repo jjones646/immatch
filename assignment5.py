@@ -1,5 +1,7 @@
+#!/usr/bin/env python2
+
 # ASSIGNMENT 5 - Feature Matching
-# Your Name
+# Jonathan Jones
 
 import numpy as np
 import scipy as sp
@@ -70,7 +72,7 @@ def findMatchesBetweenImages(image_1, image_2):
   Returns:
     image_1_kp (list): The image_1 keypoints, the elements are of type
                        cv2.KeyPoint.
-    image_2_kp (list): The image_2 keypoints, the elements are of type 
+    image_2_kp (list): The image_2 keypoints, the elements are of type
                        cv2.KeyPoint.
     matches (list): A list of matches, length 10. Each item in the list is of
                     type cv2.DMatch.

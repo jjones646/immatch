@@ -89,45 +89,30 @@ def findMatchesBetweenImages(image_1, image_2):
   # image_2_desc - type: numpy.ndarray of numpy.uint8 values.
   image_2_desc = None
 
-  # make sure we are working with grayscale images
-  # if image_1.ndim == 3: image_1 = cv2.cvtColor(image_1, cv2.COLOR_BGR2GRAY)
-  # if image_2.ndim == 3: image_2 = cv2.cvtColor(image_2, cv2.COLOR_BGR2GRAY)
-
   # create SIFT object
   sift = SIFT()
   # compute the keypoints & descriptors
   image_1_kp, image_1_desc = sift.detectAndCompute(image_1, None)
   image_2_kp, image_2_desc = sift.detectAndCompute(image_2, None)
+  # when false, will perform an alternative algorithm for checking neighbors
+  crosscheck = False
   # create Brute Force Matcher object for computing hamming distances
-  # matcher = cv2.BFMatcher(cv2.NORM_HAMMING, True)
-  matcher = cv2.BFMatcher(cv2.NORM_HAMMING2)
-  # compute the matches while applying the ratio test along the way according
-  # to the distance with a matche's nearest neighbor.
-  # See section 7.1 in https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf
-  thresh = 0.55
-  matches_good = list()
-  # make sure we get at least 10 matches
-  while len(matches_good) < 20:
-      for m, n in matcher.knnMatch(image_1_desc, image_2_desc, k=2):
-          if m.distance / n.distance < thresh:
-              if len(matches_good) == 0:
-                  matches_good.append(m)
-              else:
-                  for i, mg in enumerate(matches_good):
-                      pt1 = image_2_kp[m.queryIdx].pt
-                      pt2 = image_2_kp[mg.queryIdx].pt
-                      if int(pt1[0]) == int(pt2[0]) and int(pt1[1]) == int(pt2[1]):
-                          break
-                      else:
-                          if i == len(matches_good) - 1:
-                              matches_good.append(m)
-      thresh += 0.01
+  matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crosscheck)
+  if crosscheck is True:
+      matches_good = matcher.match(image_1_desc, image_2_desc)
+  else:
+      # compute the matches while applying the ratio test along the way according
+      # to the distance with a matche's nearest neighbor.
+      # See section 7.1 in https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf
+      thresh = 0.55
+      matches_good = list()
+      # make sure we get at least 10 matches
+      while len(matches_good) < 20:
+          for m, n in matcher.knnMatch(image_1_desc, image_2_desc, k=2):
+              if m.distance / n.distance < thresh: matches_good.append(m)
+          thresh += 0.01
   # sort in ascending order by distance - only keep the top 10
   matches = sorted(matches_good, key=lambda m: m.distance)[:10]
-  for m in matches:
-    #   pt = image_1_kp[m.queryIdx].pt
-      pt = image_2_kp[m.queryIdx].pt
-      print('{:.1f} X {:.1f}'.format(pt[0], pt[1]))
   return image_1_kp, image_2_kp, matches
 
 
@@ -177,7 +162,6 @@ def drawMatches(image_1, image_1_keypoints, image_2, image_2_keypoints, matches)
     joined_image[:image_1.shape[0], :image_1.shape[1]] = image_1
     joined_image[:image_2.shape[0], image_1.shape[1] + margin:] = image_2
 
-  i = 0
   for match in matches:
     image_1_point = (int(image_1_keypoints[match.queryIdx].pt[0]),
                      int(image_1_keypoints[match.queryIdx].pt[1]))
@@ -186,10 +170,9 @@ def drawMatches(image_1, image_1_keypoints, image_2, image_2_keypoints, matches)
                    int(image_2_keypoints[match.trainIdx].pt[1]))
 
     cv2.circle(joined_image, image_1_point, 5, (0, 0, 255), thickness = -1)
-    cv2.circle(joined_image, image_2_point, 5 + i, (0, 255, 0), thickness = 1)
+    cv2.circle(joined_image, image_2_point, 5, (0, 255, 0), thickness = -1)
     cv2.line(joined_image, image_1_point, image_2_point, (255, 0, 0), \
              thickness = 3)
-    i += 3
   return joined_image
 
 # If you want to output your image, this basic code should work.

@@ -106,9 +106,11 @@ def findMatchesBetweenImages(image_1, image_2):
       # See section 7.1 in https://www.cs.ubc.ca/~lowe/papers/ijcv04.pdf
       thresh = 0.55
       matches_good = list()
-      # make sure we get at least 10 matches
+      mm = matcher.knnMatch(image_1_desc, image_2_desc, k=2)
+      # make sure we get at least 20 matches, where most of the false positives
+      # are filtered out
       while len(matches_good) < 20:
-          for m, n in matcher.knnMatch(image_1_desc, image_2_desc, k=2):
+          for m, n in mm:
               if m.distance / n.distance < thresh: matches_good.append(m)
           thresh += 0.01
   # sort in ascending order by distance - only keep the top 10
